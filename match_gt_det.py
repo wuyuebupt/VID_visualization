@@ -211,21 +211,83 @@ if __name__ == '__main__':
 		# find the matched one 
 		# 1. pred_class = class_
 		# 2. IoU > 0.5
-		for bbox_, class_ in zip(boxes, classes):
-			if bbox_ != None and class_ != None:
-				# draw the GT with yellow
-				x1, y1, x2, y2 = map(int, bbox_)
-				
-		 		cv2.rectangle(img, (x1,y1), (x2,y2), COLORS.blue, 3)
-				cv2.rectangle(img, (x1,y1), (np.min((x2, x1 + 200)), y1 + 30), COLORS.blue, cv2.FILLED) 
-				draw_gt_class = 'GT: ' + class_
-		 		cv2.putText(img, draw_gt_class, (x1+4,y1+24), cv2.FONT_HERSHEY_SIMPLEX, 0.7, FontColor, 2)
-				# 
-				gt_thr = get_gt_thres(bbox_)
-				for pred in preds:
-					# filter very low scores
-					if pred.score < 0.01:
-						continue
+		# for bbox_, class_ in zip(boxes, classes):
+		# 	if bbox_ != None and class_ != None:
+		# 		# draw the GT with yellow
+		# 		x1, y1, x2, y2 = map(int, bbox_)
+		# 		
+		#  		cv2.rectangle(img, (x1,y1), (x2,y2), COLORS.blue, 3)
+		# 		cv2.rectangle(img, (x1,y1), (np.min((x2, x1 + 200)), y1 + 30), COLORS.blue, cv2.FILLED) 
+		# 		draw_gt_class = 'GT: ' + class_
+		#  		cv2.putText(img, draw_gt_class, (x1+4,y1+24), cv2.FONT_HERSHEY_SIMPLEX, 0.7, FontColor, 2)
+		# 		# 
+		# 		gt_thr = get_gt_thres(bbox_)
+		# 		for pred in preds:
+		# 			# filter very low scores
+		# 			if pred.score < 0.01:
+		# 				continue
+	
+		# 			print pred, bbox_
+		# 			# calculate the IoU of two box
+		# 			IoU = cal_IoU(bbox_, pred.bbox)
+		# 			print IoU, gt_thr
+		# 			print pred.class_index, CLASS_NAMES[pred.class_index], class_
+		# 			
+		# 			# case 1 : correct detection, 0.5 <= IoU       + correct class label
+		# 			# case 2 : Error 1,             0 <  IoU < 0.5 + correct class label
+		# 			# case 3 : Error 2,           0.5 <= IoU       + wrong class label
+		# 			# case 4 : Error 3,             0 <  IoU < 0.5 + wrong class label
+		# 			pred_class_ = CLASS_NAMES[pred.class_index]
+		# 			if IoU >= gt_thr and class_ == pred_class_:
+		# 				# case 1
+		# 			 	x1, y1, x2, y2 = map(int, pred.bbox)
+		# 			 	pred_class_score = '{}{} {:.2f}'.format('DET:', pred_class_, pred.score)
+		# 				cv2.rectangle(img, (x1,y1), (x2,y2), COLORS.green, 3)
+		# 				cv2.rectangle(img, (x1,y2), (np.min((x2, x1 + 200)), y2 - 30), COLORS.green, cv2.FILLED) 
+		# 		 		cv2.putText(img, pred_class_score, (x1 + 4, y2 - 6), cv2.FONT_HERSHEY_SIMPLEX, 0.7, FontColor, 2)
+		# 			elif IoU > 0.01 and IoU < gt_thr and class_ == pred_class_:
+		# 				# case 2
+		# 			 	x1, y1, x2, y2 = map(int, pred.bbox)
+		# 			 	pred_class_score = '{}{} {:.2f}'.format('DET:', pred_class_, pred.score)
+		# 				cv2.rectangle(img, (x1,y1), (x2,y2), COLORS.yellow, 3)
+		# 				cv2.rectangle(img, (x1,y2), (np.min((x2, x1 + 200)), y2 - 30), COLORS.yellow, cv2.FILLED) 
+		# 		 		cv2.putText(img, pred_class_score, (x1 + 4, y2 - 6), cv2.FONT_HERSHEY_SIMPLEX, 0.7, FontColor, 2)
+		# 			elif IoU >= gt_thr and class_ != pred_class_:
+		# 				# case 3
+		# 			 	x1, y1, x2, y2 = map(int, pred.bbox)
+		# 			 	pred_class_score = '{}{} {:.2f}'.format('DET:', pred_class_, pred.score)
+		# 				cv2.rectangle(img, (x1,y1), (x2,y2), COLORS.red, 3)
+		# 				cv2.rectangle(img, (x1,y2), (np.min((x2, x1 + 200)), y2 + 30), COLORS.red, cv2.FILLED) 
+		# 		 		cv2.putText(img, pred_class_score, (x1 + 4, y2 + 24), cv2.FONT_HERSHEY_SIMPLEX, 0.7, FontColor, 2)
+		# 			elif IoU > 0.01 and IoU < gt_thr and class_ != pred_class_:
+		# 				# case 3
+		# 			 	x1, y1, x2, y2 = map(int, pred.bbox)
+		# 			 	pred_class_score = '{}{} {:.2f}'.format('DET:', pred_class_, pred.score)
+		# 				cv2.rectangle(img, (x1,y1), (x2,y2), COLORS.gray, 3)
+		# 				cv2.rectangle(img, (x1,y2), (np.min((x2, x1 + 200)), y2 - 30), COLORS.gray, cv2.FILLED) 
+		# 		 		cv2.putText(img, pred_class_score, (x1 + 4, y2 - 6), cv2.FONT_HERSHEY_SIMPLEX, 0.7, FontColor, 2)
+		# 			else:
+		# 				print("non from case 1 to 4")
+
+
+
+		## find the match one, started from objects
+		for pred in preds:
+			ovmax = -1
+			kmax = -1
+			count = 0
+			keytype = -1
+			for bbox_, class_ in zip(boxes, classes):
+				if bbox_ != None and class_ != None:
+					# draw the GT with yellow
+					x1, y1, x2, y2 = map(int, bbox_)
+					
+			 		cv2.rectangle(img, (x1,y1), (x2,y2), COLORS.blue, 3)
+					cv2.rectangle(img, (x1,y1), (np.min((x2, x1 + 200)), y1 + 30), COLORS.blue, cv2.FILLED) 
+					draw_gt_class = 'GT: ' + class_
+			 		cv2.putText(img, draw_gt_class, (x1+4,y1+24), cv2.FONT_HERSHEY_SIMPLEX, 0.7, FontColor, 2)
+					# 
+					gt_thr = get_gt_thres(bbox_)
 	
 					print pred, bbox_
 					# calculate the IoU of two box
@@ -240,34 +302,50 @@ if __name__ == '__main__':
 					pred_class_ = CLASS_NAMES[pred.class_index]
 					if IoU >= gt_thr and class_ == pred_class_:
 						# case 1
-					 	x1, y1, x2, y2 = map(int, pred.bbox)
-					 	pred_class_score = '{}{} {:.2f}'.format('DET:', pred_class_, pred.score)
+						if IoU >= ovmax:
+							ovmax = IoU
+							kmax = count
+							count += 1
+							keytype = 1
+					elif IoU > 0.0 and IoU < gt_thr and class_ == pred_class_ and keytype != 1:
+						# case 2
+						
+						keytype = 2
+					elif IoU >= gt_thr and class_ != pred_class_ and keytype != 1:
+						# case 3
+
+						keytype = 3
+					elif IoU > 0.0 and IoU < gt_thr and class_ != pred_class_ and keytype != 1:
+						# case 3
+
+						keytype = 4
+					elif keytype != 1:
+						keytype = 5
+						print("non from case 1 to 4")
+					else:
+						keytype = 1 
+
+			x1, y1, x2, y2 = map(int, pred.bbox)
+			pred_class_score = '{}{} {:.2f}'.format('DET:', pred_class_, pred.score)
+			if keytype == 1:
 						cv2.rectangle(img, (x1,y1), (x2,y2), COLORS.green, 3)
 						cv2.rectangle(img, (x1,y2), (np.min((x2, x1 + 200)), y2 - 30), COLORS.green, cv2.FILLED) 
 				 		cv2.putText(img, pred_class_score, (x1 + 4, y2 - 6), cv2.FONT_HERSHEY_SIMPLEX, 0.7, FontColor, 2)
-					elif IoU > 0.01 and IoU < gt_thr and class_ == pred_class_:
-						# case 2
-					 	x1, y1, x2, y2 = map(int, pred.bbox)
-					 	pred_class_score = '{}{} {:.2f}'.format('DET:', pred_class_, pred.score)
+			elif keytype == 2:
 						cv2.rectangle(img, (x1,y1), (x2,y2), COLORS.yellow, 3)
 						cv2.rectangle(img, (x1,y2), (np.min((x2, x1 + 200)), y2 - 30), COLORS.yellow, cv2.FILLED) 
 				 		cv2.putText(img, pred_class_score, (x1 + 4, y2 - 6), cv2.FONT_HERSHEY_SIMPLEX, 0.7, FontColor, 2)
-					elif IoU >= gt_thr and class_ != pred_class_:
-						# case 3
-					 	x1, y1, x2, y2 = map(int, pred.bbox)
-					 	pred_class_score = '{}{} {:.2f}'.format('DET:', pred_class_, pred.score)
+			elif keytype == 3:
 						cv2.rectangle(img, (x1,y1), (x2,y2), COLORS.red, 3)
 						cv2.rectangle(img, (x1,y2), (np.min((x2, x1 + 200)), y2 + 30), COLORS.red, cv2.FILLED) 
 				 		cv2.putText(img, pred_class_score, (x1 + 4, y2 + 24), cv2.FONT_HERSHEY_SIMPLEX, 0.7, FontColor, 2)
-					elif IoU > 0.01 and IoU < gt_thr and class_ != pred_class_:
-						# case 3
-					 	x1, y1, x2, y2 = map(int, pred.bbox)
-					 	pred_class_score = '{}{} {:.2f}'.format('DET:', pred_class_, pred.score)
+			elif keytype == 4:
 						cv2.rectangle(img, (x1,y1), (x2,y2), COLORS.gray, 3)
 						cv2.rectangle(img, (x1,y2), (np.min((x2, x1 + 200)), y2 - 30), COLORS.gray, cv2.FILLED) 
 				 		cv2.putText(img, pred_class_score, (x1 + 4, y2 - 6), cv2.FONT_HERSHEY_SIMPLEX, 0.7, FontColor, 2)
-					else:
+			elif keytype == 5:
 						print("non from case 1 to 4")
+				
 						
 		cv2.imshow('abc', img)
 		cv2.waitKey()
