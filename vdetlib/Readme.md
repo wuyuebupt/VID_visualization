@@ -1,5 +1,7 @@
 # vdetlib - Python library for object detection in videos
 
+Original repo is at https://github.com/myfavouritekk/vdetlib. 
+
 ## Introduction
 
 The `vdetlib` python library serves to detection objects in videos. It was originally developed for the [ImageNet VID](http://image-net.org/challenges/LSVRC/2015/index#vid) challenge introduced in [ILSVRC2015](http://image-net.org/challenges/LSVRC/2015/). It contains components such as **region proposal**, **still-image object detection**, **generic object tracking**, **spatial max-pooling** and **temporal convolution**.
