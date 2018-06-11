@@ -10,40 +10,13 @@ VID_ROOT = '/home/yue/project/vid/code/videoVisualization/myVisual/ILSVRC2015/Da
 ANNO_ROOT = '/home/yue/project/vid/code/videoVisualization/myVisual/ILSVRC2015/Annotations/VID/val/'
 IMAGESET_ROOT = '/home/yue/project/vid/code/videoVisualization/ILSVRC/ImageSets/VID/'
 
-CLASS_NAMES = ['background', 'airplane', 'antelope', 'bear', 'bicycle', 'bird', 'bus', 'car', 'cattle', 'dog', 'domestic_cat', 'elephant', 'fox', 'giant_panda', 'hamster', 'horse', 'lion', 'lizard', 'monkey', 'motorcycle', 'rabbit', 'red_panda', 'sheep', 'snake', 'squirrel', 'tiger', 'train', 'turtle', 'watercraft', 'whale', 'zebra']
-
-PRESET_COLORS = [
-  (255, 65, 54),
-  (61, 153, 112),
-  (0, 116, 217),
-  (133, 20, 75),
-  (0, 31, 63),
-  (240, 18, 190),
-  (1, 255, 112),
-  (127, 219, 255),
-  (255, 133, 27),
-  (176, 176, 176)
-]
-
-## some colors
 # RGB -> BGR
-COLORS = {
-	'green' : (0,255,127),
-	'yellow': (0,215,255),
-	'red':(0,0,255),
-	'blue': (225,0,0),
-	'gray': (85,85,85)
-}
-COLORS = EasyDict(COLORS)
-FontColor = (0,0,0)
-
 
 def track_class_at_frame(tracklet, frame_id):
     for box in tracklet:
         if box['frame'] == frame_id:
             return box['class']
     return None
-
 
 def track_box_at_frame(tracklet, frame_id):
     for box in tracklet:
@@ -54,45 +27,20 @@ def track_box_at_frame(tracklet, frame_id):
 
 import numpy as np
 
-def get_gt_thres(gt_bbox):
-	# get gt_threshold -> for small objects
-	gt_w = gt_bbox[2] - gt_bbox[0] + 1
-	gt_h = gt_bbox[3] - gt_bbox[1] + 1
-	thres = (gt_w * gt_h)/((gt_w + 10.) * (gt_h + 10.))
-	gt_thr = np.min((0.5, thres))
-	return gt_thr
-
-def cal_IoU(bbox1, bbox2):
-	# calculate real IoU
-	bi = [np.max((bbox1[0], bbox2[0])), np.max((bbox1[1], bbox2[1])), np.min((bbox1[2], bbox2[2])),  np.min((bbox1[3], bbox2[3]))]
-	iw = bi[2] - bi[0] + 1
-	ih = bi[3] - bi[1] + 1
-	if iw > 0 and ih > 0:
-		ua = (bbox2[2] - bbox2[0] + 1.) * (bbox2[3] - bbox2[1] + 1.) + (bbox1[2] - bbox1[0] +1.)* (bbox1[3] - bbox1[1] + 1.) - iw * ih
-		ov = iw * ih / ua
-	else:
-		ov = 0.
-	return ov 
-	
-
 
 
 if __name__ == '__main__':
 
 	videos = defaultdict(list)
-	fid_to_path = {}
 	with open(os.path.join(IMAGESET_ROOT, 'val.txt')) as f:
 		lines = f.readlines()
 		for line in lines:
 			line = line.strip().split()
-			fid_to_path[int(line[1])] = os.path.join(VID_ROOT, 'val', line[0] + '.JPEG')
 			videos[os.path.dirname(line[0])].append(int(line[1]))
 
 	# sort frames inside each video
 	for k in videos:
 		videos[k].sort()
-
-
 
 	vid_list = open(sys.argv[1])
 	vid_objs = {}

@@ -6,6 +6,8 @@ from easydict import EasyDict
 from vdetlib.utils.protocol import vid_proto_from_dir, frame_path_at
 from vdetlib.tools.imagenet_annotation_processor import get_anno
 
+
+# Change 
 VID_ROOT = '/home/yue/project/vid/code/videoVisualization/myVisual/ILSVRC2015/Data/VID/val/'
 ANNO_ROOT = '/home/yue/project/vid/code/videoVisualization/myVisual/ILSVRC2015/Annotations/VID/val/'
 IMAGESET_ROOT = '/home/yue/project/vid/code/videoVisualization/ILSVRC/ImageSets/VID/'
@@ -107,12 +109,12 @@ if __name__ == '__main__':
 	# fid   -> image
 	# video -> fid
 	videos = defaultdict(list)
-	fid_to_path = {}
+	# fid_to_path = {}
 	with open(os.path.join(IMAGESET_ROOT, 'val.txt')) as f:
 		lines = f.readlines()
 		for line in lines:
 			line = line.strip().split()
-			fid_to_path[int(line[1])] = os.path.join(VID_ROOT, 'val', line[0] + '.JPEG')
+			# fid_to_path[int(line[1])] = os.path.join(VID_ROOT, 'val', line[0] + '.JPEG')
 			videos[os.path.dirname(line[0])].append(int(line[1]))
 
 	# sort frames inside each video
