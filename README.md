@@ -36,4 +36,4 @@ python save_gt_det.py det_remove_lowschores-0.1 ILSVRC2015_val_00170000
 ```
 
 
-
+3. View the results in draw_gt_det/saveImgs/
